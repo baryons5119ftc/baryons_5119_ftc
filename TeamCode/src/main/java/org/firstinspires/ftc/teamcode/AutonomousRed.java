@@ -50,12 +50,12 @@ import java.util.List;
  * Use Android Studio to Copy this Class, and Paste it into your team's code folder with a new name.
  * Remove or comment out the @Disabled line to add this OpMode to the Driver Station OpMode list.
  */
-@TeleOp(name = "Concept: TensorFlow Object Detection", group = "Concept")
+@TeleOp(name = "Red Autonomous", group = "Concept")
 //@Disabled
 public class AutonomousRed extends LinearOpMode {
 
     private static final boolean USE_WEBCAM = true;  // true for webcam, false for phone camera
-    private static final String TFOD_MODEL_FILE = "/sdcard/FIRST/tflitemodels/red.tflite";
+    private static final String TFOD_MODEL_ASSET = "red.tflite";
     private static final String LABELS[] = {"red"};
 
     /**
@@ -128,14 +128,15 @@ public class AutonomousRed extends LinearOpMode {
     private void initTfod() {
 
         // Create the TensorFlow processor by using a builder.
-        tfod = new TfodProcessor.Builder().setModelFileName(TFOD_MODEL_FILE).setModelLabels(LABELS)
+        tfod = new TfodProcessor.Builder()
+                //.setModelFileName(TFOD_MODEL_FILE).setModelLabels(LABELS)
 
                 // Use setModelAssetName() if the TF Model is built in as an asset.
                 // Use setModelFileName() if you have downloaded a custom team model to the Robot Controller.
-                //.setModelAssetName(TFOD_MODEL_ASSET)
+                .setModelAssetName(TFOD_MODEL_ASSET)
                 //.setModelFileName(TFOD_MODEL_FILE)
 
-                //.setModelLabels(LABELS)
+                .setModelLabels(LABELS)
                 //.setIsModelTensorFlow2(true)
                 //.setIsModelQuantized(true)
                 //.setModelInputSize(300)
