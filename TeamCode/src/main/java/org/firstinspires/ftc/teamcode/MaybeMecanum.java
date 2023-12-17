@@ -1,4 +1,3 @@
-
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -101,7 +100,6 @@ public class MaybeMecanum extends OpMode
          * Bottom (X): A
          * Right (Circle): B
          */
-
 
         if (controller2.BOnce()) {
             robot.resetHeading();
