@@ -41,6 +41,19 @@ import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.tfod.TfodProcessor;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
+import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import java.util.List;
+import org.firstinspires.ftc.robotcore.external.ClassFactory;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
+import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
+import java.util.*;
+
 import java.util.List;
 
 /*
@@ -50,10 +63,10 @@ import java.util.List;
  * Use Android Studio to Copy this Class, and Paste it into your team's code folder with a new name.
  * Remove or comment out the @Disabled line to add this OpMode to the Driver Station OpMode list.
  */
-@TeleOp(name = "Red Autonomous", group = "Concept")
+@Autonomous(name = "autonomous RED")
 //@Disabled
 public class AutonomousRed extends LinearOpMode {
-
+    RealRobot robot;
     private static final boolean USE_WEBCAM = true;  // true for webcam, false for phone camera
     private static final String TFOD_MODEL_ASSET = "red.tflite";
     private static final String LABELS[] = {"red"};
@@ -70,19 +83,19 @@ public class AutonomousRed extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-
+        initialize();
         initTfod();
 
         // Wait for the DS start button to be touched.
-        telemetry.addData(">", "Press Play to start op mode");
+        telemetry.addData(">", "Press Play to start autonomous");
         telemetry.update();
         waitForStart();
 
         boolean found = false;
         int choose = 0;
-        if (opModeIsActive()) {
+       /* if (opModeIsActive()) {
             while (opModeIsActive() && !found) {
-                if(tfod != null) {
+                if (tfod != null) {
                     List<Recognition> currentRecognitions = tfod.getRecognitions();
                     telemetry.addData("# Objects Detected", currentRecognitions.size());
 
@@ -96,10 +109,10 @@ public class AutonomousRed extends LinearOpMode {
                         telemetry.addData("- Position", "%.0f / %.0f", x, y);
                         telemetry.addData("- Size", "%.0f x %.0f", recognition.getWidth(), recognition.getHeight());
 
-                        if(recognition.getLabel().equals("red")) {
+                        if (recognition.getLabel().equals("red")) {
                             // use location data
-                            if(x < 250) choose = 1;
-                            else if(x > 400) choose = 3;
+                            if (x < 250) choose = 1;
+                            else if (x > 400) choose = 3;
                             else choose = 2;
                             found = true;
                             break;
@@ -107,19 +120,69 @@ public class AutonomousRed extends LinearOpMode {
                     }   // end for() loop
                 }
             }
-        }
+        }*/
 
         // Save more CPU resources when camera is no longer needed.
         visionPortal.close();
 
-        if(choose == 1) {
+       /* if (choose == 1) {
+            // strafe left
+            robot.encoderDrive(0.3, 10.0, 'L');
+            // move forward
+            robot.encoderDrive(0.3, 20.0, 'F');
+            // place pixel
+          /*  robot.intake.setTargetPosition(robot.intake.getCurrentPosition()+300);
+            robot.intake.setPower(0.5);
+            robot.sleep(1000);
+            robot.intake.setPower(0);*/
+            // move back
+           // robot.encoderDrive(0.3, 20.0, 'B');
+            // strafe right
+            //robot.encoderDrive(0.3, 10.0, 'R');
+      /*  } else if (choose == 2) {
+            // move forward
+            robot.encoderDrive(0.3, 20.0, 'F');
+            // place pixel
+           /* robot.intake.setTargetPosition(robot.intake.getCurrentPosition()+300);
+            robot.intake.setPower(0.5);
+            robot.sleep(1000);
+            robot.intake.setPower(0);*/
+            // move back
+            //robot.encoderDrive(0.3, 20.0, 'B');
+      /*  } else {
+            // strafe right
+            robot.encoderDrive(0.3, 10.0, 'R');
+            // move forward
+            robot.encoderDrive(0.3, 20.0, 'F');
+            // place pixel
+           /* robot.intake.setTargetPosition(robot.intake.getCurrentPosition()+300);
+            robot.intake.setPower(0.5);
+            robot.sleep(1000);
+            robot.intake.setPower(0);*/
+            // move back
+          //  robot.encoderDrive(0.3, 20.0, 'B');
+            // strafe left
+          //  robot.encoderDrive(0.3, 10.0, 'L');
+        //}
 
-        } else if(choose == 2) {
+        // turn right
+       // robot.rotateToHeading(90, 1.0);
+        // move forward
+        //robot.encoderDrive(0.3, 30.0, 'F');
+        // place pixels
 
-        } else {
-
-        }
-
+//        robot.lift.setTargetPosition(-827);
+//        robot.sleep(2000);
+//        robot.dropper.setDirection(Servo.Direction.FORWARD);
+//        robot.dropper.setPosition(0.0);
+        // dropper 0.5 = closed
+        // dropper 0.0 = opens
+        // lift -827
+        // end of auto
+        robot.encoderDrive(0.5, 5, 'B');
+        robot.rotateToHeading(90, 0.5);
+        robot.encoderDrive(0.5, 50, 'B');
+        robot.sleep(20000);
     }   // end runOpMode()
 
     /**
@@ -182,5 +245,24 @@ public class AutonomousRed extends LinearOpMode {
 
     }   // end method initTfod()
 
+    public void initialize() {
+        ArrayList<DcMotor> allMotors = new ArrayList<>();
+        /*
+         * Initialize the drive system variables.
+         * The init() method of the hardware class does all the work here
+         */
+        robot = new RealRobot(hardwareMap, telemetry);
+        allMotors.add(robot.lf);
+        allMotors.add(robot.rf);
+        allMotors.add(robot.lr);
+        allMotors.add(robot.rr);
 
-}   // end class
+        //robot.carriage.setPosition(.77);
+        //robot.carriage.setDirection(Servo.Direction.FORWARD);
+
+        for (DcMotor dcMotor : allMotors) {
+            dcMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        }
+
+    }   // end class
+}

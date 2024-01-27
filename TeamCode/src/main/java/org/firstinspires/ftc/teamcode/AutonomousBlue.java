@@ -55,7 +55,7 @@ import java.util.List;
 public class AutonomousBlue extends LinearOpMode {
 
     private static final boolean USE_WEBCAM = true;  // true for webcam, false for phone camera
-    private static final String TFOD_MODEL_ASSET = "blue.tflite";
+    private static final String TFOD_MODEL_ASSET = "newBlue.tflite";
     private static final String LABELS[] = {"blue"};
 
     /**

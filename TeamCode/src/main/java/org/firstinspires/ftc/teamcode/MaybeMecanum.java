@@ -47,6 +47,8 @@ public class MaybeMecanum extends OpMode
 
         controller = new Controller(gamepad1);
         controller2 = new Controller(gamepad2);
+        //
+        // robot.launcher.setPosition(Servo.MAX_POSITION);
 
     }
 
@@ -70,7 +72,7 @@ public class MaybeMecanum extends OpMode
     public void start() {
         elapsed.reset();
         robot.resetHeading();
-        robot.setMotorMode(DcMotor.RunMode.RUN_USING_ENCODER, robot.lf, robot.rf, robot.rr, robot.lr);
+        robot.setMotorMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER, robot.lf, robot.rf, robot.rr, robot.lr);
     }
 
     /*
@@ -82,17 +84,29 @@ public class MaybeMecanum extends OpMode
         controller2.update();
         robot.loop();
 
-        final double x = Math.pow(controller.left_stick_x * 1, 3.0);
+        /*final double x = Math.pow(controller.left_stick_x * 1, 3.0);
         final double y = Math.pow(controller.left_stick_y * 1, 3.0);
 
         final double rotation = -Math.pow(controller.right_stick_x * 1, 3.0) / 2.5;
-        final double direction = -((Math.atan2(-x, y) + (arcadeMode ? robot.getHeading() : 0.0)));
+        final double direction = -((Math.atan2(x, y) + (arcadeMode ? robot.getHeading() : 0.0)));
         final double speed = Math.min(1.0, Math.sqrt(x * x + y * y));
 
         double lf = (slowMode ? governor * .6 : governor) * speed * Math.cos(direction + Math.PI / 4.0) + (slowMode ? .3 : 1) * rotation;
         double rf = (slowMode ? governor * .6 : governor) * speed * Math.sin(direction + Math.PI / 4.0) - (slowMode ? .3 : 1) * rotation;
         double lr = (slowMode ? governor * .6 : governor) * speed * Math.sin(direction + Math.PI / 4.0) + (slowMode ? .3 : 1) * rotation;
         double rr = (slowMode ? governor * .6 : governor) * speed * Math.cos(direction + Math.PI / 4.0) - (slowMode ? .3 : 1) * rotation;
+*/
+        final double x = -Math.pow(controller.right_stick_x*1, 3.0)/1.5; //positived //swapped w other
+        final double y = Math.pow(controller.left_stick_y*1, 3.0);
+
+        final double rotation = Math.pow(controller.left_stick_x*1, 3.0); //negated
+        final double direction = -(Math.atan2(x, y) + (arcadeMode ? robot.getHeading() : 0.0));
+        final double speed = Math.min(1.0, Math.sqrt(x * x + y * y));
+
+        double lf = (slowMode ? governor*.6 : governor) * speed * Math.sin(direction + Math.PI / 4.0) + (slowMode ? .3 : 1)*rotation;
+        double rf = (slowMode ? governor*.6 : governor) * speed * Math.cos(direction + Math.PI / 4.0) - (slowMode ? .3 : 1)*rotation;
+        double lr = (slowMode ? governor*.6 : governor) * speed * Math.cos(direction + Math.PI / 4.0) + (slowMode ? .3 : 1)*rotation;
+        double rr = (slowMode ? governor*.6 : governor) * speed * Math.sin(direction + Math.PI / 4.0) - (slowMode ? .3 : 1)*rotation;
 
         /**
          * Controller button position reference:
@@ -101,15 +115,47 @@ public class MaybeMecanum extends OpMode
          * Bottom (X): A
          * Right (Circle): B
          */
+        if(controller.dpadUp()) robot.servoHook.setPosition(1); //arm up
+        if(controller.dpadDown()) robot.servoHook.setPosition(0);//arm up
 
+        if (controller.dpadLeft() || controller.dpadRight()) {
+            if(controller.dpadRight()){
+                robot.hookSp.setPower(0.8);//right is cw from top
+                robot.servoHook.setPosition(0); //takes servo arm down while tightening the spool
+            }
+            else robot.hookSp.setPower(-0.8);//left dpad is ccw from top
+        }// TO BE DONE-ADD LINE FOR ARM MOTOR TO
+        //GO DOWN WHEN SPOOL TURNS SO THE MOTORS DON'T FIGHT
+        else robot.hookSp.setPower(0);
+
+        if(controller.left_trigger!=0) robot.intake.setPower(1);
+        else robot.intake.setPower(0.0);
+        if(controller.right_trigger!=0) robot.intake.setPower(-1);
+        else robot.intake.setPower(0.0);
+
+        if(controller2.right_trigger!=0) robot.lift.setPower(1);
+        else robot.lift.setPower(0);
+        if(controller2.left_trigger!=0) robot.lift.setPower(-1);
+        else robot.lift.setPower(0);
+
+        if(controller2.BOnce()) robot.dropper.setPosition(0.0);
+        if(controller2.rightBumper()) {
+            robot.dropper.setDirection(Servo.Direction.FORWARD);
+            robot.dropper.setPosition(0.1);
+
+        }
+        if(controller2.leftBumper()){
+            robot.dropper.setDirection(Servo.Direction.REVERSE);
+            robot.dropper.setPosition(0.50);
+        }
 
         if (controller2.BOnce()) {
             robot.resetHeading();
         }
 
-        if (controller2.YOnce()) {
+       /* if (controller2.YOnce()) {
             arcadeMode = !arcadeMode;
-        }
+        }*/
 
 
         if (controller2.AOnce()) {
@@ -126,6 +172,23 @@ public class MaybeMecanum extends OpMode
             arcadeMode = !arcadeMode;
         }
 
+        if (controller.Y()) {
+            robot.launcher.setDirection(Servo.Direction.REVERSE);
+            robot.launcher.setPosition(robot.launcher.getPosition()+0.2);
+        }
+        if (controller.X()) {
+            robot.launcher.setDirection(Servo.Direction.REVERSE);
+            robot.launcher.setPosition(robot.launcher.getPosition()-0.2);
+        }
+        if (controller.A()) {
+            robot.launcher.setDirection(Servo.Direction.FORWARD);
+            robot.launcher.setPosition(robot.launcher.getPosition()+0.2);
+        }
+        if (controller.B()) {
+            robot.launcher.setDirection(Servo.Direction.FORWARD);
+            robot.launcher.setPosition(robot.launcher.getPosition()-0.2);
+        }
+
 
 
         robot.setMotors(lf, lr, rf, rr);
@@ -138,6 +201,9 @@ public class MaybeMecanum extends OpMode
         telemetry.addData("RF Position", robot.rf.getCurrentPosition());
         telemetry.addData("LR Position", robot.lr.getCurrentPosition());
         telemetry.addData("RR Position", robot.rr.getCurrentPosition());
+        telemetry.addData("Dropper Position", robot.dropper.getPosition());
+        telemetry.addData("Launcher Position", robot.launcher.getPosition());
+        telemetry.addData("Lift Position", robot.lift.getCurrentPosition());
         telemetry.addData("1 Left Joystick Y", controller.left_stick_y);
         telemetry.addData("1 Left Joystick X", controller.left_stick_x);
         telemetry.addData("2 Left Joystick Y", controller2.left_stick_y);
