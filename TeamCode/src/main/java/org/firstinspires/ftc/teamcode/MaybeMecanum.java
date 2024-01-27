@@ -115,6 +115,7 @@ public class MaybeMecanum extends OpMode
          * Bottom (X): A
          * Right (Circle): B
          */
+        robot.servoHook.setDirection(Servo.Direction.REVERSE);
         if(controller.dpadUp()) robot.servoHook.setPosition(1); //arm up
         if(controller.dpadDown()) robot.servoHook.setPosition(0);//arm up
 
