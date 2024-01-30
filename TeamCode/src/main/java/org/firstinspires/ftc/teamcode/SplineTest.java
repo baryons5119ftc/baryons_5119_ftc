@@ -30,7 +30,7 @@ public class SplineTest extends LinearOpMode {
         sleep(2000);
 
         robot.followTrajectory(
-                drive.trajectoryBuilder(traj.end(), true)
+                robot.trajectoryBuilder(traj.end(), true)
                         .splineTo(new Vector2d(0, 0), Math.toRadians(180))
                         .build()
         );
