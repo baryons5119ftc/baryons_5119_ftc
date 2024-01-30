@@ -28,18 +28,18 @@ public class FollowerPIDTuner extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-        SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
-
+        //SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
+        RealRobot robot = new RealRobot(hardwareMap, telemetry);
         Pose2d startPose = new Pose2d(-DISTANCE / 2, -DISTANCE / 2, 0);
 
-        drive.setPoseEstimate(startPose);
+        robot.setPoseEstimate(startPose);
 
         waitForStart();
 
         if (isStopRequested()) return;
 
         while (!isStopRequested()) {
-            TrajectorySequence trajSeq = drive.trajectorySequenceBuilder(startPose)
+            TrajectorySequence trajSeq = robot.trajectorySequenceBuilder(startPose)
                     .forward(DISTANCE)
                     .turn(Math.toRadians(90))
                     .forward(DISTANCE)
@@ -49,7 +49,7 @@ public class FollowerPIDTuner extends LinearOpMode {
                     .forward(DISTANCE)
                     .turn(Math.toRadians(90))
                     .build();
-            drive.followTrajectorySequence(trajSeq);
+            robot.followTrajectorySequence(trajSeq);
         }
     }
 }

@@ -18,7 +18,7 @@ import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 public class LocalizationTest extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
-    /*    //SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
+    //SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
         RealRobot robot = new RealRobot(hardwareMap, telemetry);
 
         Controller controller = new Controller(gamepad1);
@@ -28,7 +28,7 @@ public class LocalizationTest extends LinearOpMode {
         waitForStart();
 
         while (!isStopRequested()) {
-            drive.setWeightedDrivePower(
+            robot.setWeightedDrivePower(
                     new Pose2d(
                             -gamepad1.left_stick_y,
                             -gamepad1.left_stick_x,
@@ -38,11 +38,11 @@ public class LocalizationTest extends LinearOpMode {
 
           //  drive.update();
 
-            Pose2d poseEstimate = drive.getPoseEstimate();
+            Pose2d poseEstimate = robot.getPoseEstimate();
             telemetry.addData("x", poseEstimate.getX());
             telemetry.addData("y", poseEstimate.getY());
             telemetry.addData("heading", poseEstimate.getHeading());
             telemetry.update();
-        }*/
+        }
     }
 }

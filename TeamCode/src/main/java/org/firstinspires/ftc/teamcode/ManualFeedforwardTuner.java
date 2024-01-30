@@ -50,7 +50,7 @@ public class ManualFeedforwardTuner extends LinearOpMode {
 
     private FtcDashboard dashboard = FtcDashboard.getInstance();
 
-    private SampleMecanumDrive drive;
+    private RealRobot robot;
 
     enum Mode {
         DRIVER_MODE,
@@ -74,7 +74,7 @@ public class ManualFeedforwardTuner extends LinearOpMode {
 
         Telemetry telemetry = new MultipleTelemetry(this.telemetry, dashboard.getTelemetry());
 
-        drive = new SampleMecanumDrive(hardwareMap);
+        robot = new SampleMecanumDrive(hardwareMap, telemetry);
 
         final VoltageSensor voltageSensor = hardwareMap.voltageSensor.iterator().next();
 
