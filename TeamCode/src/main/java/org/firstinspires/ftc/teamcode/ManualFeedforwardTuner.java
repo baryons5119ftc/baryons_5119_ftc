@@ -74,7 +74,7 @@ public class ManualFeedforwardTuner extends LinearOpMode {
 
         Telemetry telemetry = new MultipleTelemetry(this.telemetry, dashboard.getTelemetry());
 
-        robot = new SampleMecanumDrive(hardwareMap, telemetry);
+        RealRobot drive = new RealRobot(hardwareMap, telemetry);
 
         final VoltageSensor voltageSensor = hardwareMap.voltageSensor.iterator().next();
 

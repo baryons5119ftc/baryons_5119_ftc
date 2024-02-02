@@ -115,24 +115,30 @@ public class MaybeMecanum extends OpMode
          * Bottom (X): A
          * Right (Circle): B
          */
-        robot.servoHook.setDirection(Servo.Direction.REVERSE);
-        if(controller.dpadUp()) robot.servoHook.setPosition(1); //arm up
-        if(controller.dpadDown()) robot.servoHook.setPosition(0);//arm up
+        //robot.servoHook.setDirection(Servo.Direction.REVERSE);
+        if (controller.dpadUp() || controller.dpadDown()) {
+            if(controller.dpadUp()){
+                robot.hook.setPower(0.8);//right is cw from top
+            }
+            else robot.hook.setPower(0.8);//left dpad is ccw from top
+        }
+        else robot.hook.setPower(0);
 
         if (controller.dpadLeft() || controller.dpadRight()) {
             if(controller.dpadRight()){
                 robot.hookSp.setPower(0.8);//right is cw from top
-                robot.servoHook.setPosition(0); //takes servo arm down while tightening the spool
+                //robot.servoHook.setPosition(0); //takes servo arm down while tightening the spool
             }
             else robot.hookSp.setPower(-0.8);//left dpad is ccw from top
         }// TO BE DONE-ADD LINE FOR ARM MOTOR TO
         //GO DOWN WHEN SPOOL TURNS SO THE MOTORS DON'T FIGHT
         else robot.hookSp.setPower(0);
 
-        if(controller.left_trigger!=0) robot.intake.setPower(1);
-        else robot.intake.setPower(0.0);
-        if(controller.right_trigger!=0) robot.intake.setPower(-1);
-        else robot.intake.setPower(0.0);
+        if(controller.left_trigger!=0||controller.right_trigger!=0){
+            if(controller.left_trigger!=0) robot.intake.setPower(1);
+            else robot.intake.setPower(-1);
+        }
+        else robot.intake.setPower(0);
 
         if(controller2.right_trigger!=0) robot.lift.setPower(1);
         else robot.lift.setPower(0);

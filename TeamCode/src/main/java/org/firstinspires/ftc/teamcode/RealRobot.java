@@ -56,6 +56,7 @@ import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.teamcode.drive.StandardTrackingWheelLocalizer;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequenceBuilder;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequenceRunner;
@@ -88,14 +89,15 @@ public class RealRobot extends MecanumDrive{
     static final double     WHEEL_DIAMETER_INCHES   = 3.77953 ;     // For figuring circumference || Previous value of 3.93701
     static final double     COUNTS_PER_INCH         = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) / (WHEEL_DIAMETER_INCHES * 3.1415);
 
-    private final HardwareMap hardwareMap;
+    //private final HardwareMap hardwareMap;
     private final Telemetry telemetry;
 
-    public final DcMotor lf, lr, rf, rr, hookSp;
+    public DcMotorEx lf, lr, rf, rr;
+    public final DcMotor hookSp, hook;
     public final DcMotor intake;
     public final DcMotor lift;
     public final Servo dropper;
-    public final Servo launcher, servoHook;
+    public final Servo launcher;
     public ElapsedTime elapsed = new ElapsedTime();
 
     //public final Servo grabber,track, trayL, trayR;
@@ -143,8 +145,10 @@ public class RealRobot extends MecanumDrive{
     private List<Integer> lastEncPositions = new ArrayList<>();
     private List<Integer> lastEncVels = new ArrayList<>();
 
+    private List<DcMotorEx> motors = Arrays.asList(lf, lr, rr, rf);
 
-    public RealRobot(final HardwareMap _hardwareMap, final Telemetry _telemetry) {
+    public RealRobot(HardwareMap hardwareMap, final Telemetry _telemetry) {
+
         //roadrunner stuff
         super(kV, kA, kStatic, TRACK_WIDTH, TRACK_WIDTH, LATERAL_MULTIPLIER);
 
@@ -164,7 +168,7 @@ public class RealRobot extends MecanumDrive{
             setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         }
 
-        setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        //setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         if (RUN_USING_ENCODER && MOTOR_VELO_PID != null) {
             setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, MOTOR_VELO_PID);
@@ -182,20 +186,25 @@ public class RealRobot extends MecanumDrive{
         );
 
 
-        hardwareMap = _hardwareMap;
+
+        //hardwareMap = _hardwareMap;
         telemetry = _telemetry;
 
-
-        lf = hardwareMap.dcMotor.get("lf");
+        /*lf = hardwareMap.dcMotor.get("lf");
         rf = hardwareMap.dcMotor.get("rf");
         lr = hardwareMap.dcMotor.get("lr");
-        rr = hardwareMap.dcMotor.get("rr");
-        servoHook = hardwareMap.servo.get("servoHook");
+        rr = hardwareMap.dcMotor.get("rr");*/
+        lf = hardwareMap.get(DcMotorEx.class, "lf");
+        lr = hardwareMap.get(DcMotorEx.class, "lr");
+        rr = hardwareMap.get(DcMotorEx.class, "rr");
+        rf = hardwareMap.get(DcMotorEx.class, "rf");
+        hook = hardwareMap.dcMotor.get("hook");
         hookSp = hardwareMap.dcMotor.get("hookSp");
         dropper = hardwareMap.servo.get("dropper") ;
         intake = hardwareMap.dcMotor.get("intake");
         lift = hardwareMap.dcMotor.get("lift");
         launcher = hardwareMap.servo.get("launcher");
+
 
 
         lf.setDirection(DcMotorSimple.Direction.FORWARD);
@@ -301,7 +310,17 @@ public class RealRobot extends MecanumDrive{
         return trajectorySequenceRunner.isBusy();
     }
 
-    public void setPIDFCoefficients(DcMotor.RunMode runMode, PIDFCoefficients coefficients, DcMotor... motors) {
+    public void setMode(DcMotor.RunMode runMode) {
+        for (DcMotorEx motor : motors) {
+            motor.setMode(runMode);
+        }
+    }
+    public void setZeroPowerBehavior(DcMotor.ZeroPowerBehavior zeroPowerBehavior) {
+        for (DcMotorEx motor : motors) {
+            motor.setZeroPowerBehavior(zeroPowerBehavior);
+        }
+    }
+    public void setPIDFCoefficients(DcMotor.RunMode runMode, PIDFCoefficients coefficients) {
         PIDFCoefficients compensatedCoefficients = new PIDFCoefficients(
                 coefficients.p, coefficients.i, coefficients.d,
                 coefficients.f * 12 / batteryVoltageSensor.getVoltage()
@@ -335,7 +354,7 @@ public class RealRobot extends MecanumDrive{
 
     @NonNull
     @Override
-    public List<Double> getWheelPositions(DcMotor...motors) {
+    public List<Double> getWheelPositions() {
         lastEncPositions.clear();
 
         List<Double> wheelPositions = new ArrayList<>();
@@ -348,7 +367,7 @@ public class RealRobot extends MecanumDrive{
     }
 
     @Override
-    public List<Double> getWheelVelocities(DcMotor...motors) {
+    public List<Double> getWheelVelocities() {
         lastEncVels.clear();
 
         List<Double> wheelVelocities = new ArrayList<>();
@@ -358,6 +377,14 @@ public class RealRobot extends MecanumDrive{
             wheelVelocities.add(encoderTicksToInches(vel));
         }
         return wheelVelocities;
+    }
+
+    @Override
+    public void setMotorPowers(double v, double v1, double v2, double v3) {
+        lf.setPower(v);
+        lr.setPower(v1);
+        rr.setPower(v2);
+        rf.setPower(v3);
     }
 
     @Override
@@ -380,11 +407,11 @@ public class RealRobot extends MecanumDrive{
     public static TrajectoryAccelerationConstraint getAccelerationConstraint(double maxAccel) {
         return new ProfileAccelerationConstraint(maxAccel);
     }
-}
+
 //end of rr for now
 
-    public void setMotorMode(DcMotor.RunMode mode, DcMotor... motors) {
-        for (DcMotor motor : motors) {
+    public void setMotorMode(DcMotor.RunMode mode, DcMotorEx... motors) {
+        for (DcMotorEx motor : motors) {
             motor.setMode(mode);
         }
     }
