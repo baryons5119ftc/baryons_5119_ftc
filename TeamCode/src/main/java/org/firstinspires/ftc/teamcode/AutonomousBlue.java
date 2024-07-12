@@ -32,15 +32,19 @@ package org.firstinspires.ftc.teamcode;
 import android.hardware.Camera;
 import android.util.Size;
 
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
+
 import org.firstinspires.ftc.robotcore.external.hardware.camera.BuiltinCameraDirection;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.tfod.TfodProcessor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /*
@@ -50,12 +54,12 @@ import java.util.List;
  * Use Android Studio to Copy this Class, and Paste it into your team's code folder with a new name.
  * Remove or comment out the @Disabled line to add this OpMode to the Driver Station OpMode list.
  */
-@TeleOp(name = "Red Autonomous", group = "Concept")
+@Autonomous(name = "Blue Autonomous", group = "Concept")
 //@Disabled
 public class AutonomousBlue extends LinearOpMode {
 
     private static final boolean USE_WEBCAM = true;  // true for webcam, false for phone camera
-    private static final String TFOD_MODEL_ASSET = "newBlue.tflite";
+    //private static final String TFOD_MODEL_ASSET = "newBlue.tflite";
     private static final String LABELS[] = {"blue"};
 
     /**
@@ -70,9 +74,9 @@ public class AutonomousBlue extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-
+        RealRobot robot = new RealRobot(hardwareMap, telemetry);
         initTfod();
-
+        initialize();
         // Wait for the DS start button to be touched.
         telemetry.addData(">", "Press Play to start op mode");
         telemetry.update();
@@ -96,12 +100,16 @@ public class AutonomousBlue extends LinearOpMode {
                         telemetry.addData("- Position", "%.0f / %.0f", x, y);
                         telemetry.addData("- Size", "%.0f x %.0f", recognition.getWidth(), recognition.getHeight());
 
-                        if(recognition.getLabel().equals("red")) {
+                        if(recognition.getLabel().equals("blue")) {
                             // use location data
-                            if(x < 250) choose = 1;
-                            else if(x > 400) choose = 3;
+                            if(x < 440) choose = 1;
                             else choose = 2;
-                            found = true;
+                            found=true;
+                            break;
+                        }
+                        if(currentRecognitions.isEmpty()){
+                            choose = 3;
+                            found=true;
                             break;
                         }
                     }   // end for() loop
@@ -112,13 +120,29 @@ public class AutonomousBlue extends LinearOpMode {
         // Save more CPU resources when camera is no longer needed.
         visionPortal.close();
 
-        if(choose == 1) {
-
-        } else if(choose == 2) {
-
-        } else {
-
-        }
+        robot.timeDrive("F", 0.5, 856);
+//        if(choose==1){
+//            robot.timeRotate(90, "CCW", 0.4);
+//            robot.timeDrive("F",0.3,120);
+//            robot.intake.setPower(0.2);
+//            sleep(105);
+//            robot.intake.setPower(0);
+//            robot.timeDrive("B", 0.5, 110);
+//        }
+//        if (choose==2){
+//            robot.intake.setPower(0.2);
+//            sleep(105);
+//            robot.intake.setPower(0);
+//            robot.timeDrive("B", 0.5, 100);
+//        }
+//        if (choose==3){
+//            robot.timeRotate(90, "CW", 0.4);
+//            robot.timeDrive("F",0.3,120);
+//            robot.intake.setPower(0.2);
+//            sleep(105);
+//            robot.intake.setPower(0);
+//            robot.timeDrive("B", 0.5, 110);
+//        }
 
     }   // end runOpMode()
 
@@ -129,20 +153,23 @@ public class AutonomousBlue extends LinearOpMode {
 
         // Create the TensorFlow processor by using a builder.
         tfod = new TfodProcessor.Builder()
-                //.setModelFileName(TFOD_MODEL_FILE).setModelLabels(LABELS)
 
                 // Use setModelAssetName() if the TF Model is built in as an asset.
                 // Use setModelFileName() if you have downloaded a custom team model to the Robot Controller.
-                .setModelAssetName(TFOD_MODEL_ASSET)
-                //.setModelFileName(TFOD_MODEL_FILE)
+                //.setModelAssetName("redfinal1.tflite")
+                .setModelAssetName("plssave.tflite")
 
                 .setModelLabels(LABELS)
-                //.setIsModelTensorFlow2(true)
-                //.setIsModelQuantized(true)
-                //.setModelInputSize(300)
-                //.setModelAspectRatio(16.0 / 9.0)
+                .setIsModelTensorFlow2(true)
+                .setIsModelQuantized(true)
+                .setModelInputSize(300)
+                .setModelAspectRatio(16.0 / 9.0)
+                .setMaxNumRecognitions(1)
 
+                //.setModelAssetName("redfinal1.tflite").setModelLabels(LABELS).
                 .build();
+        //tfod.setZoom(0.9);
+        tfod.setMinResultConfidence((float) 0.75);
 
         // Create the vision portal by using a builder.
         VisionPortal.Builder builder = new VisionPortal.Builder();
@@ -155,7 +182,7 @@ public class AutonomousBlue extends LinearOpMode {
         }
 
         // Choose a camera resolution. Not all cameras support all resolutions.
-        builder.setCameraResolution(new Size(640, 360));
+        //builder.setCameraResolution(new Size(640, 480));
 
         // Enable the RC preview (LiveView).  Set "false" to omit camera monitoring.
         //builder.enableCameraMonitoring(true);
@@ -181,6 +208,27 @@ public class AutonomousBlue extends LinearOpMode {
         //visionPortal.setProcessorEnabled(tfod, true);
 
     }   // end method initTfod()
+    public void initialize() {
+        ArrayList<DcMotor> allMotors = new ArrayList<>();
+        /*
+         * Initialize the drive system variables.
+         * The init() method of the hardware class does all the work here
+         */
+        RealRobot robot = new RealRobot(hardwareMap, telemetry);
+        allMotors.add(robot.lf);
+        allMotors.add(robot.rf);
+        allMotors.add(robot.lr);
+        allMotors.add(robot.rr);
 
+        //robot.carriage.setPosition(.77);
+        //robot.carriage.setDirection(Servo.Direction.FORWARD);
+
+        for (DcMotor dcMotor : allMotors) {
+            dcMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        }
+
+
+
+    }   // end class
 
 }   // end class

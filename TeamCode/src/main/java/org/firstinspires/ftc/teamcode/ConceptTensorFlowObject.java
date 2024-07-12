@@ -49,8 +49,9 @@ import java.util.List;
  */
 @TeleOp(name = "Concept: TensorFlow Object", group = "Concept")
 public class ConceptTensorFlowObject extends LinearOpMode {
+    int choose = 0;
     private static final String[] LABELS = {
-            "r", "red"
+            "blue"
     };
 
     private static final boolean USE_WEBCAM = true;  // true for webcam, false for phone camera
@@ -112,16 +113,20 @@ public class ConceptTensorFlowObject extends LinearOpMode {
             // Use setModelAssetName() if the TF Model is built in as an asset.
             // Use setModelFileName() if you have downloaded a custom team model to the Robot Controller.
             //.setModelAssetName("redfinal1.tflite")
-            .setModelFileName("redfinal11.tflite")
+            .setModelAssetName("plssave.tflite")
 
             .setModelLabels(LABELS)
             .setIsModelTensorFlow2(true)
             .setIsModelQuantized(true)
             .setModelInputSize(300)
             .setModelAspectRatio(16.0 / 9.0)
+                .setMaxNumRecognitions(1)
 
                 //.setModelAssetName("redfinal1.tflite").setModelLabels(LABELS).
                 .build();
+        //tfod.setZoom(0.8);
+
+        tfod.setMinResultConfidence((float) 0.75);
 
         // Create the vision portal by using a builder.
         VisionPortal.Builder builder = new VisionPortal.Builder();
@@ -174,10 +179,18 @@ public class ConceptTensorFlowObject extends LinearOpMode {
             double x = (recognition.getLeft() + recognition.getRight()) / 2 ;
             double y = (recognition.getTop()  + recognition.getBottom()) / 2 ;
 
+                // use location data
+                if(x < 440) choose = 2;
+                else choose = 3;
+
+            if(currentRecognitions.isEmpty()){
+                choose = 1;
+            }
             telemetry.addData(""," ");
             telemetry.addData("Image", "%s (%.0f %% Conf.)", recognition.getLabel(), recognition.getConfidence() * 100);
             telemetry.addData("- Position", "%.0f / %.0f", x, y);
             telemetry.addData("- Size", "%.0f x %.0f", recognition.getWidth(), recognition.getHeight());
+            telemetry.addData("Choose",choose);
         }   // end for() loop
 
     }   // end method telemetryTfod()

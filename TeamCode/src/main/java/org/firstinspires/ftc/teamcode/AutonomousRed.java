@@ -81,7 +81,8 @@ public class AutonomousRed extends LinearOpMode {
      */
     private VisionPortal visionPortal;
 
-    @Override
+    //@Override
+    //@Disabled
     public void runOpMode() {
         initialize();
         initTfod();
@@ -93,36 +94,7 @@ public class AutonomousRed extends LinearOpMode {
 
         boolean found = false;
         int choose = 0;
-       /* if (opModeIsActive()) {
-            while (opModeIsActive() && !found) {
-                if (tfod != null) {
-                    List<Recognition> currentRecognitions = tfod.getRecognitions();
-                    telemetry.addData("# Objects Detected", currentRecognitions.size());
 
-                    // Step through the list of recognitions and display info for each one.
-                    for (Recognition recognition : currentRecognitions) {
-                        double x = (recognition.getLeft() + recognition.getRight()) / 2;
-                        double y = (recognition.getTop() + recognition.getBottom()) / 2;
-
-                        telemetry.addData("", " ");
-                        telemetry.addData("Image", "%s (%.0f %% Conf.)", recognition.getLabel(), recognition.getConfidence() * 100);
-                        telemetry.addData("- Position", "%.0f / %.0f", x, y);
-                        telemetry.addData("- Size", "%.0f x %.0f", recognition.getWidth(), recognition.getHeight());
-
-                        if (recognition.getLabel().equals("red")) {
-                            // use location data
-                            if (x < 250) choose = 1;
-                            else if (x > 400) choose = 3;
-                            else choose = 2;
-                            found = true;
-                            break;
-                        }
-                    }   // end for() loop
-                }
-            }
-        }*/
-
-        // Save more CPU resources when camera is no longer needed.
         visionPortal.close();
 
        /* if (choose == 1) {
@@ -192,20 +164,23 @@ public class AutonomousRed extends LinearOpMode {
 
         // Create the TensorFlow processor by using a builder.
         tfod = new TfodProcessor.Builder()
-                //.setModelFileName(TFOD_MODEL_FILE).setModelLabels(LABELS)
 
                 // Use setModelAssetName() if the TF Model is built in as an asset.
                 // Use setModelFileName() if you have downloaded a custom team model to the Robot Controller.
-                .setModelAssetName(TFOD_MODEL_ASSET)
-                //.setModelFileName(TFOD_MODEL_FILE)
+                //.setModelAssetName("redfinal1.tflite")
+                .setModelAssetName("red.tflite")
 
                 .setModelLabels(LABELS)
-                //.setIsModelTensorFlow2(true)
-                //.setIsModelQuantized(true)
-                //.setModelInputSize(300)
-                //.setModelAspectRatio(16.0 / 9.0)
+                .setIsModelTensorFlow2(true)
+                .setIsModelQuantized(true)
+                .setModelInputSize(300)
+                .setModelAspectRatio(16.0 / 9.0)
+                .setMaxNumRecognitions(1)
 
+                //.setModelAssetName("redfinal1.tflite").setModelLabels(LABELS).
                 .build();
+        //tfod.setZoom(0.9);
+        //tfod.setMinResultConfidence((float) 0.);
 
         // Create the vision portal by using a builder.
         VisionPortal.Builder builder = new VisionPortal.Builder();
@@ -218,7 +193,7 @@ public class AutonomousRed extends LinearOpMode {
         }
 
         // Choose a camera resolution. Not all cameras support all resolutions.
-        builder.setCameraResolution(new Size(640, 360));
+        //builder.setCameraResolution(new Size(640, 480));
 
         // Enable the RC preview (LiveView).  Set "false" to omit camera monitoring.
         //builder.enableCameraMonitoring(true);

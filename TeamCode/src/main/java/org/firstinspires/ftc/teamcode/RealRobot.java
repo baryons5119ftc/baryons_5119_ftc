@@ -93,11 +93,11 @@ public class RealRobot extends MecanumDrive{
     private final Telemetry telemetry;
 
     public DcMotorEx lf, lr, rf, rr;
-    public final DcMotor hookSp, hook;
-    public final DcMotor intake;
-    public final DcMotor lift;
-    public final Servo dropper;
-    public final Servo launcher;
+//    public final DcMotor hookSp, hook;
+//    public final DcMotorEx intake;
+//    public final DcMotor lift;
+//    public final Servo dropper;
+//    public final Servo launcher;
     public ElapsedTime elapsed = new ElapsedTime();
 
     //public final Servo grabber,track, trayL, trayR;
@@ -107,7 +107,6 @@ public class RealRobot extends MecanumDrive{
     private double headingOffset = 0.0;
     private Orientation angles;
     private Acceleration gravity;
-
 
 
 
@@ -178,12 +177,12 @@ public class RealRobot extends MecanumDrive{
         List<Integer> lastTrackingEncVels = new ArrayList<>();
 
         // TODO: if desired, use setLocalizer() to change the localization method
-        setLocalizer(new StandardTrackingWheelLocalizer(hardwareMap, lastTrackingEncPositions, lastTrackingEncVels));
-
-        trajectorySequenceRunner = new TrajectorySequenceRunner(
-                follower, HEADING_PID, batteryVoltageSensor,
-                lastEncPositions, lastEncVels, lastTrackingEncPositions, lastTrackingEncVels
-        );
+//        setLocalizer(new StandardTrackingWheelLocalizer(hardwareMap, lastTrackingEncPositions, lastTrackingEncVels));
+//
+//        trajectorySequenceRunner = new TrajectorySequenceRunner(
+//                follower, HEADING_PID, batteryVoltageSensor,
+//                lastEncPositions, lastEncVels, lastTrackingEncPositions, lastTrackingEncVels
+//        );
 
 
 
@@ -198,12 +197,12 @@ public class RealRobot extends MecanumDrive{
         lr = hardwareMap.get(DcMotorEx.class, "lr");
         rr = hardwareMap.get(DcMotorEx.class, "rr");
         rf = hardwareMap.get(DcMotorEx.class, "rf");
-        hook = hardwareMap.dcMotor.get("hook");
-        hookSp = hardwareMap.dcMotor.get("hookSp");
-        dropper = hardwareMap.servo.get("dropper") ;
-        intake = hardwareMap.dcMotor.get("intake");
-        lift = hardwareMap.dcMotor.get("lift");
-        launcher = hardwareMap.servo.get("launcher");
+//        hook = hardwareMap.dcMotor.get("hook");
+//        hookSp = hardwareMap.dcMotor.get("hookSp");
+//        dropper = hardwareMap.servo.get("dropper") ;
+//        intake = hardwareMap.dcMotor.get("intake");
+//        lift = hardwareMap.dcMotor.get("lift");
+//        launcher = hardwareMap.servo.get("launcher");
 
 
 
@@ -217,7 +216,7 @@ public class RealRobot extends MecanumDrive{
 
         setMotorZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE, lf, lr, rf, rr);
         setMotorMode(DcMotor.RunMode.RUN_USING_ENCODER, lf, rf, rr, lr);
-        lift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT); //initally BRAKE
+//        lift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT); //initally BRAKE
 
 
 
@@ -955,7 +954,43 @@ public class RealRobot extends MecanumDrive{
         rr.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
+    public void timeRotate(double heading, String direction, double power){
+        if (direction == "CW") {
+            while(Math.abs(getHeadingDegrees()-heading)>2){
+                setMotors(power, -power, -power, power);
+            }
+        }
+        else{
+            while(Math.abs(getHeadingDegrees()-heading)>2){
+                setMotors(-power, power, power, -power);
+            }
+        }
+        setMotors(0,0,0,0);
+    }
 
+    //outtake area is forward
+    public void timeDrive(String direction, double p, int mil){
+        if(direction=="F"){
+            setMotors(-p,-p,-p,-p);
+            sleep(mil);
+            setMotors(0,0,0,0);
+        }
+        else if(direction=="B"){
+            setMotors(p,p,p,p);
+            sleep(mil);
+            setMotors(0,0,0,0);
+        }
+        else if(direction=="L"){
+            setMotors(-p,-p,p,p);
+            sleep(mil);
+            setMotors(0,0,0,0);
+        }
+        else if(direction=="R"){
+            setMotors(p,p,-p,-p);
+            sleep(mil);
+            setMotors(0,0,0,0);
+        }
+    }
 
 
     public boolean approxServo(double actualPos, double supposedPos) {
