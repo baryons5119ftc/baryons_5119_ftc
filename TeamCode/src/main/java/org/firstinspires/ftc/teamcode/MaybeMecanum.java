@@ -8,6 +8,10 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.extras.Controller;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.ArrayList;
+
 /**
  * This file contains an example of an iterative (Non-Linear) "OpMode".
  * An OpMode is a 'program' that runs in either the autonomous or the teleop period of an FTC match.
@@ -64,6 +68,14 @@ public class MaybeMecanum extends OpMode
         if (controller.XOnce()) {
             slowMode = !slowMode;
         }
+
+        List<Double> wheelPositions = new ArrayList<>();
+        wheelPositions = robot.getWheelPositions();
+        telemetry.addData("lfpos", wheelPositions.get(0));
+        telemetry.addData("lrpos", wheelPositions.get(1));
+        telemetry.addData("rrpos", wheelPositions.get(2));
+        telemetry.addData("rfpos", wheelPositions.get(3));
+
         telemetry.addData("Slow Mode (s)", slowMode ? "YES" : "no.");
         telemetry.update();
     }
@@ -181,21 +193,21 @@ public class MaybeMecanum extends OpMode
             arcadeMode = !arcadeMode;
         }
 
-//        if (controller.Y()) {
-//            robot.launcher.setDirection(Servo.Direction.REVERSE);
-//            robot.launcher.setPosition(robot.launcher.getPosition()+0.2);
-//        }
-//        if (controller.X()) {
-//            robot.launcher.setDirection(Servo.Direction.REVERSE);
-//            robot.launcher.setPosition(robot.launcher.getPosition()-0.2);
-//        }
-//        if (controller.A()) {
-//            robot.launcher.setDirection(Servo.Direction.FORWARD);
-//            robot.launcher.setPosition(robot.launcher.getPosition()+0.2);
-//        }
-//        if (controller.B()) {
-//            robot.launcher.setDirection(Servo.Direction.FORWARD);
-//            robot.launcher.setPosition(robot.launcher.getPosition()-0.2);
+        if (controller.Y()) {
+            robot.launcher.setDirection(Servo.Direction.REVERSE);
+            robot.launcher.setPosition(robot.launcher.getPosition()+0.2);
+        }
+        if (controller.X()) {
+            robot.launcher.setDirection(Servo.Direction.REVERSE);
+            robot.launcher.setPosition(robot.launcher.getPosition()-0.2);
+        }
+        if (controller.A()) {
+           robot.launcher.setDirection(Servo.Direction.FORWARD);
+            robot.launcher.setPosition(robot.launcher.getPosition()+0.2);
+        }
+        if (controller.B()) {
+            robot.launcher.setDirection(Servo.Direction.FORWARD);
+            robot.launcher.setPosition(robot.launcher.getPosition()-0.2);
         }
 
 
@@ -217,9 +229,13 @@ public class MaybeMecanum extends OpMode
 //        telemetry.addData("1 Left Joystick Y", controller.left_stick_y);
 //        telemetry.addData("2 Left Joystick X", controller2.left_stick_x);
 //        telemetry.addData("1 Left Joystick X", controller.left_stick_x);
-
-//        telemetry.update();
-//    }
+        wheelPositions = robot.getWheelPositions();
+        telemetry.addData("lfpos", wheelPositions.get(0));
+        telemetry.addData("lrpos", wheelPositions.get(1));
+        telemetry.addData("rrpos", wheelPositions.get(2));
+        telemetry.addData("rfpos", wheelPositions.get(3));
+        telemetry.update();
+    }
 
     /*
      * Code to run ONCE after the driver hits STOP
